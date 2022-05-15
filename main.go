@@ -42,8 +42,7 @@ func Rows(f *excelize.File) [][]string {
 	case6 := make([]string, 0)
 
 	for _, col := range cols[3:] {
-
-		s := fmt.Sprintf(strings.Join(col[:1], ""))
+		s := strings.Join(col[:1], "")
 		switch s {
 		case "1":
 			//代表该基金申编号确认部分成功
@@ -92,7 +91,7 @@ func GOSearch(f *excelize.File, s [][]string) {
 	wg.Wait()
 }
 
-//根据遍历的slice 去文件中查找
+// SearchTo 根据遍历的slice 去文件中查找
 // [9202204279252544801 9202204279252544401]
 func SearchTo(f *excelize.File, s []string, activeSheet string) []string {
 
