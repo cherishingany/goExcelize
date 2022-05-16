@@ -20,3 +20,28 @@ func TestSearchToError(t *testing.T) {
 	}
 	fmt.Println(newslice)
 }
+
+func TestSetSheetRow63(t *testing.T) { //
+
+	setValues := [][]string{
+		{"0.00", "0.00", "9999"},
+		{"0.00", "0.00", "9999"},
+	}
+
+	coordinates := [][]string{
+		{"Q1", "R1", "AI1"},
+		{"Q2", "R2", "AI2"},
+		{"Q3", "R3", "AI3"},
+	}
+
+	if len(setValues) != 1 {
+		panic("0 必须")
+	}
+
+	for _, coordinate := range coordinates {
+		for i := 0; i < len(coordinate); i++ {
+			fmt.Print(coordinate[i], "+ ")
+			fmt.Println(setValues[0][i])
+		}
+	}
+}

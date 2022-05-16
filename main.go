@@ -1,9 +1,9 @@
 package main
 
 import (
+	"excelize/controller"
 	"fmt"
 	"github.com/xuri/excelize/v2"
-	"strconv"
 	"strings"
 	"sync"
 )
@@ -82,169 +82,18 @@ func GOSearch(f *excelize.File, s [][]string) {
 		go func(index int, v []string) {
 			switch index {
 			case 0:
-				Case1(f, v)
+				controller.Case0(f, v) // 0.申购申请成功，确认部分成功 - 修改文件的交易份额,交易金额，返回代码
+			case 1:
+				controller.Case1(f, v) // 1.申购申请成功，确认失败 - 修改文件的交易份额,交易金额，返回代码
 			case 2:
+				controller.Case2(f, v) // 2.赎回申请成功，确认失败
 			case 3:
+				controller.Case3(f, v) // 3.转托管申请成功，确认失败 - 需要填写是否注册登记人 BG
+			case 4:
+				controller.Case4(f, v) // 4.基金转换申请成功，确认失败
 			}
 			defer wg.Done()
 		}(index, v)
 	}
 	wg.Wait()
-}
-
-// SearchTo 根据遍历的slice 去文件中查找
-// [9202204279252544801 9202204279252544401]
-func SearchTo(f *excelize.File, s []string, activeSheet string) []string {
-
-	var newslice []string
-	for _, value := range s {
-		values, _ := f.SearchSheet(activeSheet, value)
-		if values == nil {
-			fmt.Printf("订单编号未找到,请手动确认  -  %s\n", value)
-			fmt.Println()
-		}
-		newslice = append(newslice, values[:]...)
-	}
-	return newslice
-}
-
-func GetSheetRow53(f *excelize.File, rows, cols []string) [][]string {
-
-	//先处理rows 除去列数据
-	for i, row := range rows {
-		rows = append(rows[:i], row[1:])
-	}
-	fmt.Println(rows)
-
-	//rows := []string{"399", "400"}
-	//cols := []string{"G", "AI"}
-	var valueNum [][]string
-	//[[A399,b399],[s399,g400]]
-	rowcols := RowCol(rows, cols)
-
-	for _, firstSlice := range rowcols {
-		var row1 []string
-		for _, value := range firstSlice {
-			cellValue, _ := f.GetCellValue("53", value)
-			row1 = append(row1, cellValue)
-		}
-		valueNum = append(valueNum, row1)
-	}
-	return valueNum
-}
-
-func SetSheetRow63(f *excelize.File, setValues [][]string, rows, cols []string) { //
-
-	//先处理rows 除去列数据
-
-	//rows := []string{
-	//	"B9",
-	//	"B8",
-	//}
-	//cols := []string{"L", "M", "N"}
-
-	//setValues := [][]string{
-	//	{"ZD0001", "0.00", "218"},
-	//	{"ZD0001", "0.00", "218"},
-	//}
-
-	for i, row := range rows {
-		rows = append(rows[:i], row[1:])
-	}
-	coordinates := RowCol(rows, cols)
-
-	//coordinates := [][]string{
-	//	{"B156", "B129"},
-	//	{"B157", "B127"},
-	//}
-	//setValues := [][]string{
-	//	{"156", "129"},
-	//	{"157", "127"},
-	//}
-
-	for index, coordinate := range coordinates {
-		for i := 0; i < len(coordinate); i++ {
-			err := f.SetCellStr("63", coordinate[i], setValues[index][i])
-			if err != nil {
-				fmt.Println(err)
-			}
-		}
-	}
-
-	f.Save()
-}
-
-func RowCol(rows, cols []string) [][]string {
-
-	var v1 string
-	var valueNum [][]string
-	for _, row := range rows {
-		var row1 []string
-		for _, col := range cols {
-			v1 = col + row
-			row1 = append(row1, v1)
-		}
-		valueNum = append(valueNum, row1)
-	}
-	return valueNum
-}
-
-// case1  确认部分成功    -  调整 Q 交易确认份数
-//					    	R 交易确认金额
-//					    	返回代码9999
-// col63 := []string{"AO", "PO"}
-//  [9202204279252544801 9202204279252544401]
-func Case1(f *excelize.File, s []string) {
-
-	//行
-	row53 := SearchTo(f, s, "53") //[A399 A400]
-	//列
-	col := []string{"O", "P"}
-
-	//[[ZD0001 0.00 218] [ZD0001 0.00 218]]
-	getValue := GetSheetRow53(f, row53, col)
-	fmt.Println("从53文件中获取到的数据", getValue)
-	getValue = ChooseNum(getValue, 2)
-	fmt.Println("/2的数据", getValue)
-
-	// 中间处理string append 问题
-
-	for i := 0; i < len(getValue); i++ {
-		getValue[i] = append(getValue[i], "0000")
-	}
-
-	fmt.Println("加完 0000 的数据", getValue)
-
-	//往63放数据了
-	row63 := SearchTo(f, s, "63")
-	col63 := []string{"Q", "R", "AI"}
-	SetSheetRow63(f, getValue, row63, col63)
-
-	// 53文件中的位置
-	//s, err := f.GetCellValue("Sheet1", "O"+s) //TODO 根据返回的单元格行进行查找
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//
-
-	//setvalue(f, "63", "4Q", s)       //设置交易份额
-	//setvalue(f, "63", "4R", s)       //设置交易份额
-	//setvalue(f, "63", "4AI", "0000") //设置返回代码
-}
-
-func setvalue(f *excelize.File, sheet string, axis string, value interface{}) {
-	f.SetCellValue(sheet, axis, value)
-	f.Save()
-}
-
-func ChooseNum(slices [][]string, num float64) [][]string {
-	for i := 0; i < len(slices); i++ {
-		for index, value := range slices[i] {
-			distFloat, _ := strconv.ParseFloat(value, 32)
-			s := strconv.FormatFloat(distFloat/num, 'f', 2, 64)
-			slices[i] = append(slices[i][:index], s)
-		}
-	}
-	return slices
 }
