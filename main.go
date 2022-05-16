@@ -13,10 +13,11 @@ func main() {
 	fmt.Println("main 线程开始 -----")
 	file := OpenFile()
 	rows := Rows(file)
-	//
-	fmt.Println(rows)
 
 	GOSearch(file, rows)
+
+	//---------------------------------------------------
+
 	fmt.Println("main 线程结束 -----")
 }
 
@@ -97,13 +98,12 @@ func SearchTo(f *excelize.File, s []string, activeSheet string) []string {
 
 	var newslice []string
 	for _, value := range s {
-		values, err := f.SearchSheet(activeSheet, value)
-		if err != nil {
-			panic(err)
+		values, _ := f.SearchSheet(activeSheet, value)
+		if values == nil {
+			fmt.Printf("订单编号未找到,请手动确认  -  %s\n", value)
+			fmt.Println()
 		}
-		for _, value := range values {
-			newslice = append(newslice, value)
-		}
+		newslice = append(newslice, values[:]...)
 	}
 	return newslice
 }
