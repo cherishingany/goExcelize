@@ -45,3 +45,32 @@ func TestSetSheetRow63(t *testing.T) { //
 		}
 	}
 }
+
+//从申请数据中遍历申请单编号,根据业务类型写入到不同的slice中。此处case slice 具有很多种，TODO silce初始化放在函数中
+func TestRows(t *testing.T) {
+
+	var rowSlice [3][]string
+
+	clos := [][]string{
+		{"case0", "case0"},
+		{"case1"},
+		{"case2"},
+	}
+
+	for s, col := range clos {
+		s := fmt.Sprintf("%d", s)
+		switch s {
+		case "0":
+			rowSlice[0] = append(rowSlice[0], col[:]...)
+		case "1":
+			rowSlice[1] = append(rowSlice[1], col[:]...)
+		case "2":
+			rowSlice[2] = append(rowSlice[2], col[:]...)
+		default:
+			fmt.Println("Rows default .... error------")
+		}
+	}
+
+	fmt.Println("case 分组情况:", rowSlice)
+
+}

@@ -60,13 +60,14 @@ func setSheetRow63(f *excelize.File, setValues [][]string, rows, cols []string, 
 	case 0:
 		// flag为0则setValues只能有一组数据
 		if len(setValues) != 1 {
-			panic("0 必须")
+			panic("0 必须只能有一组数据")
 		}
-
 		for _, coordinate := range coordinates {
 			for i := 0; i < len(coordinate); i++ {
-				fmt.Print(coordinate[i], "+ ")
-				fmt.Println(setValues[0][i])
+				err := f.SetCellStr("63", coordinate[i], setValues[0][i])
+				if err != nil {
+					panic(err)
+				}
 			}
 		}
 	case 1:
@@ -100,11 +101,7 @@ func rowCol(rows, cols []string) [][]string {
 	return valueNum
 }
 
-func setvalue(f *excelize.File, sheet string, axis string, value interface{}) {
-	f.SetCellValue(sheet, axis, value)
-	f.Save()
-}
-
+// ChooseNum 函数接收到num 为被除数
 func ChooseNum(slices [][]string, num float64) [][]string {
 	for i := 0; i < len(slices); i++ {
 		for index, value := range slices[i] {
@@ -158,17 +155,6 @@ func Case0(f *excelize.File, s []string) {
 	col63 := []string{"Q", "R", "AI"}
 	setSheetRow63(f, getValue, row63, col63, 1)
 
-	// 53文件中的位置
-	//s, err := f.GetCellValue("Sheet1", "O"+s) //TODO 根据返回的单元格行进行查找
-	//if err != nil {
-	//	fmt.Println(err)
-	//	return
-	//}
-	//
-
-	//setvalue(f, "63", "4Q", s)       //设置交易份额
-	//setvalue(f, "63", "4R", s)       //设置交易份额
-	//setvalue(f, "63", "4AI", "0000") //设置返回代码
 }
 
 func Case1(f *excelize.File, s []string) {

@@ -71,6 +71,7 @@ func Rows(f *excelize.File) [][]string {
 }
 
 //[[9202204279252544801 9202204279252544401]]
+
 func GOSearch(f *excelize.File, s [][]string) {
 	wg := &sync.WaitGroup{}
 	//s [][]string的数量开groutine TODO 看他如果[]string为空不要去开了。
