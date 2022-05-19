@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -46,31 +47,50 @@ func TestSetSheetRow63(t *testing.T) { //
 	}
 }
 
+/*
+0-2
+1-5
+2-3
+3-3
+4-2
+5-2
+*/
+
 //从申请数据中遍历申请单编号,根据业务类型写入到不同的slice中。此处case slice 具有很多种，TODO silce初始化放在函数中
 func TestRows(t *testing.T) {
+	f := OpenFile()
 
-	var rowSlice [3][]string
-
-	clos := [][]string{
-		{"case0", "case0"},
-		{"case1"},
-		{"case2"},
+	cols, err := f.GetRows("x1")
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	for s, col := range clos {
-		s := fmt.Sprintf("%d", s)
+	var rowSlice = make([][]string, 6)
+
+	for _, col := range cols[3:] {
+		s := strings.Join(col[:1], "")
 		switch s {
 		case "0":
-			rowSlice[0] = append(rowSlice[0], col[:]...)
+			//代表该基金申编号确认部分成功
+			rowSlice[0] = append(rowSlice[0], col[1:2]...)
 		case "1":
-			rowSlice[1] = append(rowSlice[1], col[:]...)
+			rowSlice[1] = append(rowSlice[1], col[1:2]...)
 		case "2":
-			rowSlice[2] = append(rowSlice[2], col[:]...)
+			rowSlice[2] = append(rowSlice[2], col[1:2]...)
+		case "3":
+			rowSlice[3] = append(rowSlice[3], col[1:2]...)
+		case "4":
+			rowSlice[4] = append(rowSlice[4], col[1:2]...)
+		case "5":
+			rowSlice[5] = append(rowSlice[5], col[1:2]...)
 		default:
 			fmt.Println("Rows default .... error------")
 		}
 	}
 
 	fmt.Println("case 分组情况:", rowSlice)
+	for _, val := range rowSlice {
+		fmt.Println(len(val))
+	}
 
 }

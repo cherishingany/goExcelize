@@ -35,36 +35,28 @@ func Rows(f *excelize.File) [][]string {
 		return nil
 	}
 
-	case1 := make([]string, 0)
-	case2 := make([]string, 0)
-	case3 := make([]string, 0)
-	case4 := make([]string, 0)
-	case5 := make([]string, 0)
-	case6 := make([]string, 0)
+	var rowSlice = make([][]string, 6)
 
 	for _, col := range cols[3:] {
 		s := strings.Join(col[:1], "")
 		switch s {
-		case "1":
+		case "0":
 			//代表该基金申编号确认部分成功
-			case1 = append(case1, col[1:2]...)
+			rowSlice[0] = append(rowSlice[0], col[1:2]...)
+		case "1":
+			rowSlice[1] = append(rowSlice[1], col[1:2]...)
 		case "2":
-			case2 = append(case2, col[1:2]...)
+			rowSlice[2] = append(rowSlice[2], col[1:2]...)
 		case "3":
-			case3 = append(case3, col[1:2]...)
+			rowSlice[3] = append(rowSlice[3], col[1:2]...)
 		case "4":
-			case4 = append(case4, col[1:2]...)
+			rowSlice[4] = append(rowSlice[4], col[1:2]...)
 		case "5":
-			case5 = append(case5, col[1:2]...)
-		case "6":
-			case6 = append(case6, col[1:2]...)
+			rowSlice[5] = append(rowSlice[5], col[1:2]...)
 		default:
 			fmt.Println("Rows default .... error------")
 		}
 	}
-	var rowSlice [][]string
-	//rowSlice = append(rowSlice, string1, string2, string3, string4, string5, string6)
-	rowSlice = append(rowSlice, case6)
 
 	fmt.Println("case 分组情况:", rowSlice)
 	return rowSlice
